@@ -9,7 +9,7 @@ const puerto = 3000;
 app.use (express.json());
 
 // Conectar a la base de datos SQLite
-const db = new sqlite3.Database ('./db.db', (err) => {
+const db = new sqlite3.Database ('../db.db', (err) => {
     if (err) {
         console.error (err.message);
     } else {
@@ -18,22 +18,22 @@ const db = new sqlite3.Database ('./db.db', (err) => {
 });
 
 // Crear la tabla si no existe
-db.run ('CREATE TABLE IF NOT EXISTS usuarios (id INTEGER PRIMARY KEY AUTOINCREMENT, nombre TEXT, correo TEXT UNIQUE)');
+db.run ('CREATE TABLE IF NOT EXISTS usuarios (id INTEGER PRIMARY KEY AUTOINCREMENT, nombre TEXT)');
 
 // Endpoints CRUD
 
 // CREAR
 app.post ('/usuarios', (req, res) => {
-    const { nombre, correo } = req.body;
-    const sql = 'INSERT INTO usuarios (nombre, correo) VALUES (?, ?)';
-    db.run (sql, [nombre, correo], function (err) {
+    const { nombre } = req.body;
+    const sql = 'INSERT INTO usuarios (nombre) VALUES (?)';
+    db.run (sql, [nombre], function (err) {
 
         if (err) {
             res.status (400).json ({ error: err.message });
             return;
         }
 
-        res.json ({ id: this.lastID, nombre, correo });
+        res.json ({ id: this.lastID, nombre });
     });
 });
 
@@ -68,9 +68,9 @@ app.get('/usuarios/:id', (req, res) => {
 // ACTUALIZAR
 app.put ('/usuarios/:id', (req, res) => {
     const { id } = req.params;
-    const { nombre, correo } = req.body;
-    const sql = 'UPDATE usuarios SET nombre = ?, correo = ? WHERE id = ?';
-    db.run (sql, [nombre, correo, id], function (err) {
+    const { nombre } = req.body;
+    const sql = 'UPDATE usuarios SET nombre = ?,';
+    db.run (sql, [nombre, id], function (err) {
 
         if (err) {
             res.status (400).json ({ error: err.message });
