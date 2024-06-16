@@ -1,7 +1,7 @@
 const sqlite3 = require('sqlite3').verbose();
 const fs = require('fs');
 
-const db = new sqlite3.Database('./schema.db', (err) => {
+const db = new sqlite3.Database('./db.db', (err) => {
     if (err) {
         console.error(err.message);
 
@@ -10,14 +10,34 @@ const db = new sqlite3.Database('./schema.db', (err) => {
     }
 });
 
-const esquema = fs.readFileSync('./bd.sql', 'utf8');
+// Leer el contenido de los archivos SQL
+const usuarioSql = fs.readFileSync('./usuario.sql', 'utf8');
+const pedidosSql = fs.readFileSync('./pedidos.sql', 'utf8');
 
-db.exec(esquema, (err) => {
+// Ejecutar los archivos SQL en orden
+db.exec(usuarioSql, (err) => {
     if (err) {
-        console.error(err.message);
+        console.error(`Error al ejecutar usuario.sql: ${err.message}`);
 
     } else {
-        console.log('Base de datos inicializada correctamente.');
+        console.log('Tabla usuarios creada correctamente.');
+
+        db.exec(pedidosSql, (err) => {
+            if (err) {
+                console.error(`Error al ejecutar pedidos.sql: ${err.message}`);
+
+            } else {
+                console.log('Tabla pedidos creada correctamente.');
+            }
+
+            db.close((err) => {
+                if (err) {
+                    console.error(err.message);
+
+                } else {
+                    console.log('Cerrada la conexión a la base de datos SQLite.');
+                }
+            });
+        });
     }
-    db.close();
 });
